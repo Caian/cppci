@@ -24,7 +24,8 @@ script:
   - popd
   - popd
   - popd
-  - export EXTRACFLAGS="-I $GTEST_INSTALL_PATH/include"
+  - export EXTRACFLAGS="-I$GTEST_INSTALL_PATH/include"
+  - export EXTRALFLAGS="-llibgtest_main -llibgtest -L$GTEST_INSTALL_PATH/lib"
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$GTEST_INSTALL_PATH/lib"
   - export CFLAGS=$EXTRACFLAGS
   - export CXXFLAGS=$EXTRACFLAGS
@@ -32,4 +33,4 @@ script:
   - export CC=/usr/bin/gcc-6
   - mkdir build && cd build
   - $CXX ../test/test1.cpp -o test1
-  - $CXX $CXXFLAGS ../test/test2.cpp -o test2 -llibgtest -llibgtest_main
+  - $CXX $CXXFLAGS ../test/test2.cpp $EXTRALFLAGS -o test2 
