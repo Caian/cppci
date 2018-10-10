@@ -14,6 +14,9 @@ script:
   - mkdir extra && pushd extra
   - git clone --depth 1 https://github.com/google/googletest.git -b v1.8.x
   - git clone --depth 1 https://github.com/boostorg/boost.git -b boost-1.68.0
+  - pushd googletest
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - make -j
   - popd
   - export CXX=/usr/bin/g++-6
   - export CC=/usr/bin/gcc-6
