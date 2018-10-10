@@ -20,6 +20,7 @@ script:
   - make -j
   - popd
   - popd
+  - popd
   - export CXX=/usr/bin/g++-6
   - export CC=/usr/bin/gcc-6
   - mkdir build && cd build
