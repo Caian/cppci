@@ -11,13 +11,17 @@ addons:
       - git
 
 script:
+  - export GTEST_INSTALL_PATH="$PWD/usr/local"
+  - mkdir -p "$GTEST_INSTALL_PATH"
   - mkdir extra && pushd extra
   - git clone --depth 1 https://github.com/google/googletest.git -b v1.8.x
   - git clone --depth 1 https://github.com/boostorg/boost.git -b boost-1.68.0
   - pushd googletest
   - mkdir build && pushd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$GTEST_INSTALL_PATH" ..
   - make -j
+  - make install
+  - ls "$GTEST_INSTALL_PATH"
   - popd
   - popd
   - popd
