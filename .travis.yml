@@ -42,4 +42,4 @@ script:
   - ./test2
 
 after_success:
-  - coveralls --root .. -E "*\/extra\/*" -E "*\/usr\/*"
+  - coveralls --root .. -E ".*/extra/.*" -E ".*/usr/.*"
