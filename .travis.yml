@@ -42,6 +42,4 @@ script:
   - ./test2
 
 after_success:
-  - ls -l
-  - echo $PWD
-  - coveralls --root ..
+  - coveralls --root .. -E "*/extra/*" -E "*/usr/*"
