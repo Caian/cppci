@@ -40,7 +40,8 @@ script:
   - $CXX $CXXFLAGS ../test/test2.cpp $EXTRALFLAGS -o test2 $COVFLAGS
   - ./test1
   - ./test2
-  - ls -l
 
 after_success:
-  - coveralls --root .
+  - ls -l
+  - echo $PWD
+  - coveralls --root ./build
