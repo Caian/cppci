@@ -36,8 +36,8 @@ script:
   - export CXX=/usr/bin/g++-6
   - export CC=/usr/bin/gcc-6
   - mkdir build && pushd build
-  - $CXX $CXXFLAGS ../test/test2.cpp $EXTRALFLAGS -o test2 $COVFLAGS
-  - ./test2
+  - $CXX $CXXFLAGS ../test/test1.cpp $EXTRALFLAGS -o test1 $COVFLAGS
+  - ./test1
   - popd
 
 after_success:
