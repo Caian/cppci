@@ -25,7 +25,7 @@ script:
   - popd
   - popd
   - export EXTRACFLAGS="-I$GTEST_INSTALL_PATH/include"
-  - export EXTRALFLAGS="-lgtest_main -lgtest -L$GTEST_INSTALL_PATH/lib"
+  - export EXTRALFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_INSTALL_PATH/lib"
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$GTEST_INSTALL_PATH/lib"
   - export CFLAGS=$EXTRACFLAGS
   - export CXXFLAGS=$EXTRACFLAGS
