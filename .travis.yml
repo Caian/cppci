@@ -44,4 +44,4 @@ script:
 after_success:
   - ls -l
   - echo $PWD
-  - coveralls --root ./build
+  - coveralls --root ..
