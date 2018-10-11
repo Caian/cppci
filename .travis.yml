@@ -35,12 +35,10 @@ script:
   - export CXXFLAGS=$EXTRACFLAGS
   - export CXX=/usr/bin/g++-6
   - export CC=/usr/bin/gcc-6
-  - mkdir build && cd build
-  - $CXX ../test/test1.cpp -o test1 $COVFLAGS
-  - $CXX $CXXFLAGS ../test/test2.cpp $EXTRALFLAGS -o test2 $COVFLAGS
+  - mkdir build && pushd build
+  - $CXX $CXXFLAGS ../test/test1.cpp $EXTRALFLAGS -o test1 $COVFLAGS
   - ./test1
-  - ./test1 1 2 3 
-  - ./test2
+  - popd
 
 after_success:
-  - coveralls --root .. -E ".*/extra/.*" -E ".*/usr/.*"
+  - coveralls --root . -E ".*/extra/.*" -E ".*/usr/.*"
