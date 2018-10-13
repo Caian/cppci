@@ -64,3 +64,5 @@ script:
   - export COVFLAGS="--coverage"
   # List directory
   - ls -l
+  # List directory
+  - ls -l ..
