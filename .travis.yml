@@ -72,5 +72,6 @@ script:
       ./test
       ls -l
       popd
+    done
   - popd
   
