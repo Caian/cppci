@@ -35,9 +35,6 @@ before_install:
   - unzip v1.12.zip
   - LCOV="$PWD/lcov-1.12/bin/lcov --gcov-tool gcov-6"
   - popd
-  # Change the clone directory
-  - mkdir project && cd project
-  - export PROJECT_DIR="$PWD"
 
 before_script:
   # Build and install googletest
@@ -48,21 +45,32 @@ before_script:
   - popd
 
 script:
+  # Save some directories
+  - export PROJECT_DIR="$PWD"
+  - export TEST_SRC_DIR="$PROJECT_DIR/test"
   # Print some information
   - echo "Current dir is $PWD"
-  - echo "Project dir is $PROJECT_DIR"
   - echo "GTest dir is $GTEST_DIR"
   - echo "Boost dir is $BOOST_DIR"
   # Set compiler
   - export CXX=/usr/bin/g++-6
   # Set compiler flags
-  - export CXXFLAGS="-I$GTEST_DIR/include"
+  - export CXXFLAGS="-I$PROJECT_DIR/.."
   - export CXXFLAGS="$CXXFLAGS -I$GTEST_DIR/include"
   # Set linker flags
   - export LDFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_PATH/lib"
   # Set coverage flags
   - export COVFLAGS="--coverage"
-  # List directory
-  - ls -l
-  # List directory
-  - ls -l ..
+  # Create the build directory
+  - mkdir -p build && pushd build
+  # Build and run each test
+  - |
+    for test in "$TEST_SRC_DIR"/* ; do
+      test_dir="$(basename $test)"
+      mkdir -p "$test_dir" && pushd "$test_dir"
+      $CXX $CXXFLAGS $test -o test $LDFLAGS $COVFLAGS
+      ./test
+      ls -l
+      popd
+  - popd
+  
