@@ -34,7 +34,7 @@ before_install:
 before_script:
   # Build and install googletest
   - pushd "$GTEST_SRC_DIR"
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$GTEST_SRC_DIR" ..
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$GTEST_DIR" "$GTEST_SRC_DIR"
   - make -j
   - make install
   - popd
