@@ -58,7 +58,7 @@ script:
   - export CXXFLAGS="-I$PROJECT_DIR/.."
   - export CXXFLAGS="$CXXFLAGS -I$GTEST_DIR/include"
   # Set linker flags
-  - export LDFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_PATH/lib"
+  - export LDFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_DIR/lib"
   # Set coverage flags
   - export COVFLAGS="--coverage"
   # Create the build directory
