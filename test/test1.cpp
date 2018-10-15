@@ -40,6 +40,8 @@
 //
 // Don't forget gtest.h, which declares the testing framework.
 
+#include <cppci/mylib.hpp>
+
 #include <limits.h>
 #include <gtest/gtest.h>
 
@@ -176,6 +178,12 @@ TEST(IsPrimeTest, Positive) {
   EXPECT_FALSE(IsPrime(6));
   EXPECT_TRUE(IsPrime(23));
 }
+
+// Tests my lib.
+TEST(MyLibTest, MySquared) {
+  EXPECT_EQ(mysquared(3), 9);
+}
+
 }  // namespace
 
 // Step 3. Call RUN_ALL_TESTS() in main().

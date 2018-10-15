@@ -11,34 +11,86 @@ addons:
       - git
 
 before_install:
-  - pip install --user cpp-coveralls
+  # Get the tool used to upload coverage results to coveralls
+  - gem install coveralls-lcov
+  # Set the extra prefix for external libraries and tools
+  - export EXTRA_DIR="$PWD/extra"
+  # Set the prefix used to install googletest, set the source
+  # directory and get the source code
+  - export GTEST_DIR="$EXTRA_DIR/googletest"
+  - export GTEST_SRC_DIR="$GTEST_DIR/source"
+  - mkdir -p "$GTEST_DIR" "$GTEST_SRC_DIR"
+  - pushd "$GTEST_SRC_DIR"
+  - git clone --depth 1 https://github.com/google/googletest.git -b v1.8.x .
+  - popd
+  # Get boost
+  - export BOOST_DIR="$EXTRA_DIR/boost"
+  - mkdir -p "$BOOST_DIR"
+  - pushd "$BOOST_DIR"
+  - git clone --depth 1 https://github.com/boostorg/boost.git -b boost-1.68.0 .
+  - popd
+  # Get LLCOV
+  - export LCOV_DIR="$EXTRA_DIR/lcov"
+  - mkdir -p "$LCOV_DIR"
+  - pushd "$LCOV_DIR"
+  - wget https://github.com/linux-test-project/lcov/archive/v1.12.zip
+  - unzip v1.12.zip
+  - LCOV="$PWD/lcov-1.12/bin/lcov --gcov-tool gcov-6"
+  - popd
 
-script:
-  - export GTEST_INSTALL_PATH="$PWD/usr/local"
-  - mkdir -p "$GTEST_INSTALL_PATH"
-  - mkdir extra && pushd extra
-  - git clone --depth 1 https://github.com/google/googletest.git -b v1.8.x
-  - git clone --depth 1 https://github.com/boostorg/boost.git -b boost-1.68.0
-  - pushd googletest
-  - mkdir build && pushd build
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$GTEST_INSTALL_PATH" ..
+before_script:
+  # Build and install googletest
+  - pushd "$GTEST_SRC_DIR"
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$GTEST_DIR" .
   - make -j
   - make install
   - popd
-  - popd
-  - popd
-  - export EXTRACFLAGS="-I$GTEST_INSTALL_PATH/include"
-  - export EXTRALFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_INSTALL_PATH/lib"
-  - export COVFLAGS="--coverage"
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$GTEST_INSTALL_PATH/lib"
-  - export CFLAGS=$EXTRACFLAGS
-  - export CXXFLAGS=$EXTRACFLAGS
-  - export CXX=/usr/bin/g++-6
-  - export CC=/usr/bin/gcc-6
-  - mkdir build && pushd build
-  - $CXX $CXXFLAGS ../test/test1.cpp $EXTRALFLAGS -o test1 $COVFLAGS
-  - ./test1
-  - popd
 
+script:
+  # Save some directories
+  - export PROJECT_DIR="$PWD"
+  - export TEST_SRC_DIR="$PROJECT_DIR/test"
+  - export BUILD_DIR="$PROJECT_DIR/build"
+  # Print some information
+  - echo "Current dir is $PWD"
+  - echo "GTest dir is $GTEST_DIR"
+  - echo "Boost dir is $BOOST_DIR"
+  # Set compiler
+  - export CXX=/usr/bin/g++-6
+  # Set compiler flags
+  - export CXXFLAGS="-I$PROJECT_DIR/.."
+  - export CXXFLAGS="$CXXFLAGS -I$GTEST_DIR/include"
+  # Set linker flags
+  - export LDFLAGS="-lgtest_main -lgtest -lpthread -L$GTEST_DIR/lib"
+  # Set coverage flags
+  - export COVFLAGS="--coverage"
+  # Create the build directory
+  - mkdir -p "$BUILD_DIR" && pushd "$BUILD_DIR"
+  # Build and run each test
+  - |
+    for test in "$TEST_SRC_DIR"/* ; do
+      test_dir="$(basename $test)"
+      mkdir -p "$test_dir" && pushd "$test_dir"
+      mkdir -p "wodef" && pushd "wodef"
+      $CXX $CXXFLAGS $test -o test $LDFLAGS $COVFLAGS
+      ./test
+      ls -l
+      popd
+      mkdir -p "wdef" && pushd "wdef"
+      $CXX $CXXFLAGS -DMYLIB_DEFINE $test -o test $LDFLAGS $COVFLAGS
+      ./test
+      ls -l
+      popd
+      popd
+    done
+  - popd
+  
 after_success:
-  - coveralls --root . -E ".*/extra/.*" -E ".*/usr/.*"
+  # Set the coverage file name for lcov
+  - export COVERAGE_FILE="$BUILD_DIR/coverage.info"
+  # Run lcov on the generated coverage data
+  - $LCOV --directory "$BUILD_DIR" --base-directory "$PROJECT_DIR" --capture --output-file "$COVERAGE_FILE"
+  # Keep only the project headers in the coverage data by 
+  # removing the tests themselves and the extra libraries
+  - $LCOV --remove "$COVERAGE_FILE" "/usr*" "$TEST_SRC_DIR/*" "$EXTRA_DIR/*" -o "$COVERAGE_FILE"
+  - coveralls-lcov "$COVERAGE_FILE"
