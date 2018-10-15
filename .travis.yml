@@ -13,22 +13,24 @@ addons:
 before_install:
   # Get the tool used to upload coverage results to coveralls
   - gem install coveralls-lcov
+  # Set the extra prefix for external libraries and tools
+  - export EXTRA_DIR="$PWD/extra"
   # Set the prefix used to install googletest, set the source
   # directory and get the source code
-  - export GTEST_DIR="$PWD/extra/googletest"
+  - export GTEST_DIR="$EXTRA_DIR/googletest"
   - export GTEST_SRC_DIR="$GTEST_DIR/source"
   - mkdir -p "$GTEST_DIR" "$GTEST_SRC_DIR"
   - pushd "$GTEST_SRC_DIR"
   - git clone --depth 1 https://github.com/google/googletest.git -b v1.8.x .
   - popd
   # Get boost
-  - export BOOST_DIR="$PWD/extra/boost"
+  - export BOOST_DIR="$EXTRA_DIR/boost"
   - mkdir -p "$BOOST_DIR"
   - pushd "$BOOST_DIR"
   - git clone --depth 1 https://github.com/boostorg/boost.git -b boost-1.68.0 .
   - popd
   # Get LLCOV
-  - export LCOV_DIR="$PWD/extra/lcov"
+  - export LCOV_DIR="$EXTRA_DIR/lcov"
   - mkdir -p "$LCOV_DIR"
   - pushd "$LCOV_DIR"
   - wget https://github.com/linux-test-project/lcov/archive/v1.12.zip
@@ -48,6 +50,7 @@ script:
   # Save some directories
   - export PROJECT_DIR="$PWD"
   - export TEST_SRC_DIR="$PROJECT_DIR/test"
+  - export BUILD_DIR="$PROJECT_DIR/build"
   # Print some information
   - echo "Current dir is $PWD"
   - echo "GTest dir is $GTEST_DIR"
@@ -62,7 +65,7 @@ script:
   # Set coverage flags
   - export COVFLAGS="--coverage"
   # Create the build directory
-  - mkdir -p build && pushd build
+  - mkdir -p "$BUILD_DIR" && pushd "$BUILD_DIR"
   # Build and run each test
   - |
     for test in "$TEST_SRC_DIR"/* ; do
@@ -75,3 +78,12 @@ script:
     done
   - popd
   
+after_success:
+  # Set the coverage file name for lcov
+  - export COVERAGE_FILE="$BUILD_DIR/coverage.info"
+  # Run lcov on the generated coverage data
+  - $LCOV --directory "$BUILD_DIR" --base-directory "$PROJECT_DIR" --capture --output-file "$COVERAGE_FILE"
+  # Keep only the project headers in the coverage data by 
+  # removing the tests themselves and the extra libraries
+  - $LCOV --remove "$COVERAGE_FILE" "/usr*" "$TEST_SRC_DIR/*" "$EXTRA_DIR/*" -o "$COVERAGE_FILE"
+  - coveralls-lcov "$COVERAGE_FILE"
