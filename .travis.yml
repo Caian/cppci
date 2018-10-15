@@ -71,9 +71,16 @@ script:
     for test in "$TEST_SRC_DIR"/* ; do
       test_dir="$(basename $test)"
       mkdir -p "$test_dir" && pushd "$test_dir"
+      mkdir -p "wodef" && pushd "wodef"
       $CXX $CXXFLAGS $test -o test $LDFLAGS $COVFLAGS
       ./test
       ls -l
+      popd
+      mkdir -p "wdef" && pushd "wdef"
+      $CXX $CXXFLAGS -DMYLIB_DEFINE $test -o test $LDFLAGS $COVFLAGS
+      ./test
+      ls -l
+      popd
       popd
     done
   - popd
