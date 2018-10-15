@@ -7,4 +7,5 @@ T mysquared(const T& value)
     return value * value;
 #else
     return value * value / value * value;
+#endif
 }
