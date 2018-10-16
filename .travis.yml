@@ -87,10 +87,10 @@ script:
   
 after_success:
   # Set the coverage file name for lcov
-  - export COVERAGE_FILE="$BUILD_DIR/coverage.info"
+  - export COVERAGE_FILE="$PWD/coverage.info"
   # Run lcov on the generated coverage data
   - $LCOV --directory "$BUILD_DIR" --base-directory "$PROJECT_DIR" --capture --output-file "$COVERAGE_FILE"
   # Keep only the project headers in the coverage data by 
   # removing the tests themselves and the extra libraries
   - $LCOV --remove "$COVERAGE_FILE" "/usr*" "$TEST_SRC_DIR/*" "$EXTRA_DIR/*" -o "$COVERAGE_FILE"
-  - coveralls-lcov "$COVERAGE_FILE"
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
